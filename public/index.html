@@ -98,6 +98,7 @@ const PLAN=[
 {id:'p-kv',cat:'🏛️',title:'Musée Kvint',date:'2026-12-18',addr:'Kvint, Tiraspol',price:28.40,notes:'Pour 2 personnes'}
 ].map(p=>({time:'',url:'',price:0,...p,type:'act',updatedAt:1}));
 PLAN.forEach(p=>{if(!items.some(i=>i.id===p.id))items.push(p)});
+if(!items.some(i=>i.id==='p-fp'))items.push({id:'p-fp',type:'cost',base:440.98,extra:45,updatedAt:1});
 const days=[];for(let d=new Date('2026-12-07T12:00');d<=new Date('2026-12-20T12:00');d.setDate(d.getDate()+1))days.push(d.toISOString().slice(0,10));
 const today=new Date().toLocaleDateString('sv');let day=days.includes(today)?today:days[0];
 const live=()=>items.filter(i=>!i.deleted),utc=f=>{const[d,t]=f.dep.split(' '),[y,m,da]=d.split('-').map(Number),[h,mi]=t.split(':').map(Number);return Date.UTC(y,m-1,da,h,mi)-f.tz*36e5};
@@ -123,11 +124,15 @@ function cd(){const n=Date.now(),f=flights().find(f=>utc(f)>n);if(!f){$('#cd').i
 const flCard=(f,full)=>`<div class="card bp"><div class="a"><div><div class="code">${f.a}</div><div class="m">${f.fa}</div></div><div class="pl">✈</div><div style="text-align:right"><div class="code">${f.b}</div><div class="m">${f.fb}</div></div></div>
 <div class="z"><div><div class="big">${f.dep.slice(11)} → ${f.arr.slice(11)}${f.arr.slice(0,10)!==f.dep.slice(0,10)?' +1':''}</div><div class="m">${esc(f.co)}</div></div>
 ${full?`<button class="btn ${f.done?'ok':''}" onclick="chk('${f.id}')">${f.done?'✓ Enregistré':'Enregistré ?'}</button>`:''}</div></div>`;
+function editCost(){const c=items.find(i=>i.id==='p-fp'),n=v=>parseFloat(String(v).replace(',','.'))||0;
+  const b=prompt('Prix des billets (€)',c.base);if(b===null)return;const e=prompt('Supplément : bagages, options… (€)',c.extra);if(e===null)return;
+  put({...c,base:n(b),extra:n(e),updatedAt:Date.now()})}
 function chk(id){const f=items.find(i=>i.id===id);put({...f,done:!f.done,updatedAt:Date.now()})}
 function render(){
   cd();['agenda','vols','guide'].forEach(t=>$('#t-'+t).className=tab===t?'on':'');$('#fab').style.display=tab==='agenda'?'':'none';
   let h='';
-  if(tab==='vols'){let last='';flights().forEach(f=>{const d=f.dep.slice(0,10);if(d!==last){h+=`<div class="gs" style="text-transform:capitalize">${fmt(d)}</div>`;last=d}h+=flCard(f,1)});
+  if(tab==='vols'){const c=items.find(i=>i.id==='p-fp')||{base:0,extra:0};
+    h+=`<div class="card" onclick="editCost()"><div class="row"><div><div class="m">Billets d’avion</div><div class="big" style="font-size:1.5rem;color:var(--r)">${eur(c.base+c.extra)}</div></div><div class="m" style="text-align:right">${eur(c.base)} billets<br>+ ${eur(c.extra)} supplément<br><i>Touche pour modifier</i></div></div></div>`;let last='';flights().forEach(f=>{const d=f.dep.slice(0,10);if(d!==last){h+=`<div class="gs" style="text-transform:capitalize">${fmt(d)}</div>`;last=d}h+=flCard(f,1)});
     h+=`<div class="card m">⚠️ Correspondances à Sofia et Barcelone : billets séparés (7 h 30 d’attente à Sofia, nuit à l’aéroport de Barcelone). Horaires en heure locale.</div>`}
   else if(tab==='guide'){
     h+=`<div class="gs" style="margin-top:4px">À voir autour de Chișinău</div>`+G.map((g,i)=>`<div class="card act"><div class="ico">${g.c}</div><div class="x"><div class="big">${g.t}</div><div class="m">${g.d}</div>
@@ -137,7 +142,7 @@ function render(){
   else{
     const all=acts(),dt=all.filter(a=>a.date<=day&&(a.end||a.date)>=day),k=a=>day===a.date?(a.time||'99:99'):'';
     h+=`<div class="chips">${days.map(d=>{const dd=new Date(d+'T12:00'),has=all.some(a=>a.date<=d&&(a.end||a.date)>=d)||flights().some(f=>f.dep.startsWith(d));return`<button class="chip ${d===day?'on':''} ${has?'dot':''}" onclick="day='${d}';render()">${dd.toLocaleDateString('fr-FR',{weekday:'short'})}<b>${dd.getDate()}</b></button>`}).join('')}</div>
-    <div class="sum"><div class="m">Ce jour<b>${eur(dt.filter(a=>a.date===day).reduce((s,a)=>s+(a.price||0),0))}</b></div><div class="m">Total voyage<b>${eur(all.reduce((s,a)=>s+(a.price||0),0))}</b></div></div>
+    <div class="sum"><div class="m">Ce jour<b>${eur(dt.filter(a=>a.date===day).reduce((s,a)=>s+(a.price||0),0))}</b></div><div class="m">Activités<b>${eur(all.reduce((s,a)=>s+(a.price||0),0))}</b></div><div class="m">Billets d’avion<b style="color:var(--b)">${eur((c=>c?c.base+c.extra:0)(items.find(i=>i.id==='p-fp')))}</b></div></div>
     <div class="gs" style="margin-top:0;text-transform:capitalize">${fmt(day)}</div>`;
     flights().filter(f=>f.dep.startsWith(day)).forEach(f=>h+=flCard(f,0));
     dt.sort((a,b)=>k(a).localeCompare(k(b))).forEach(a=>h+=`<div class="card act" onclick="openF('${a.id}')"><div class="ico">${a.cat||'✨'}</div><div class="x"><div class="row"><span class="big">${esc(a.title)}</span><span class="pr">${a.price?eur(a.price):''}</span></div>
