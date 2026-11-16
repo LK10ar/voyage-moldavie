@@ -52,6 +52,7 @@ input,textarea,select{width:100%;padding:11px;border:1px solid var(--l);border-r
 <label>Activité</label><input id="ft" required placeholder="Ex. Visite de Cricova">
 <div class="g2"><div><label>Catégorie</label><select id="fc"><option>✨</option><option>🍷</option><option>🏛️</option><option>🌳</option><option>🍽️</option><option>🛍️</option><option>🚌</option><option>🛏️</option></select></div><div><label>Prix (€)</label><input id="fp" type="number" step="0.01" min="0" inputmode="decimal"></div></div>
 <div class="g2"><div><label>Date</label><input id="fd" type="date" required></div><div><label>Heure</label><input id="fh" type="time"></div></div>
+<div class="g2"><div><label>Jusqu’au (séjour, location…)</label><input id="fe" type="date"></div><div><label>Heure de fin</label><input id="fz" type="time"></div></div>
 <label>Site web</label><input id="fu" placeholder="https://…">
 <label>Adresse</label><input id="fa" placeholder="Rue, ville">
 <label>Notes</label><textarea id="fn" rows="2"></textarea>
@@ -86,6 +87,17 @@ const INFO=[['💶','Monnaie','Leu moldave (MDL). Cartes acceptées en ville, ga
 ['🔌','Prises','230 V, prises européennes (type C/F), comme en France.'],
 ['🛂','Entrée','Vérifie les conditions d’entrée et les conseils aux voyageurs sur le site du ministère des Affaires étrangères. Évite la Transnistrie sans te renseigner.']];
 let items=JSON.parse(localStorage.getItem(K)||'null')||SEED.slice(),tab='agenda';
+const PLAN=[
+{id:'p-h1',cat:'🛏️',title:'Aparthotel Bulevardul Moscova',date:'2026-12-08',time:'15:00',end:'2026-12-10',etime:'11:00',addr:'Bulevardul Moscova 15/1, 2068 Chișinău, Moldavie',notes:'2 adultes · 2 nuits · arrivée 15:00–23:00 · départ avant 11:00'},
+{id:'p-d9',cat:'🌳',title:'Chișinău : parcs et musées',date:'2026-12-09',addr:'Chișinău, Moldavie',notes:'Ajoute chaque parc et musée avec son adresse et son prix.'},
+{id:'p-c1',cat:'🚗',title:'Location de voiture',date:'2026-12-10',time:'10:00',end:'2026-12-17',etime:'18:00',notes:'Retrait le 10/12 à 10:00 · retour le 17/12 à 18:00'},
+{id:'p-m1',cat:'🍷',title:'Cave de Mileștii Mici',date:'2026-12-10',time:'13:00',price:35.23,url:'https://milestii-mici.md/',addr:'Mileștii Mici, Moldavie',notes:'Pour 2 personnes'},
+{id:'p-cm',cat:'🏛️',title:'Comrat : visite de la ville',date:'2026-12-10',addr:'Comrat, Moldavie',notes:'Étape sur la route de Vulcănești'},
+{id:'p-vu',cat:'🚗',title:'Direction Vulcănești',date:'2026-12-10',addr:'Vulcănești, Moldavie'},
+{id:'p-tb',cat:'🚌',title:'Bus pour Tiraspol',date:'2026-12-18',addr:'Tiraspol',notes:'Passeport indispensable · retour le soir à Chișinău'},
+{id:'p-kv',cat:'🏛️',title:'Musée Kvint',date:'2026-12-18',addr:'Kvint, Tiraspol',price:28.40,notes:'Pour 2 personnes'}
+].map(p=>({time:'',url:'',price:0,...p,type:'act',updatedAt:1}));
+PLAN.forEach(p=>{if(!items.some(i=>i.id===p.id))items.push(p)});
 const days=[];for(let d=new Date('2026-12-07T12:00');d<=new Date('2026-12-20T12:00');d.setDate(d.getDate()+1))days.push(d.toISOString().slice(0,10));
 const today=new Date().toLocaleDateString('sv');let day=days.includes(today)?today:days[0];
 const live=()=>items.filter(i=>!i.deleted),utc=f=>{const[d,t]=f.dep.split(' '),[y,m,da]=d.split('-').map(Number),[h,mi]=t.split(':').map(Number);return Date.UTC(y,m-1,da,h,mi)-f.tz*36e5};
@@ -123,22 +135,22 @@ function render(){
     +`<div class="gs">Infos pratiques</div>`+INFO.map(i=>`<div class="card act"><div class="ico">${i[0]}</div><div class="x"><div class="big">${i[1]}</div><div class="m">${i[2]}</div></div></div>`).join('')
     +`<p class="m" style="text-align:center">Résumés d’après <a href="${WV}" target="_blank" rel="noopener">Wikivoyage</a> (CC BY-SA). Infos à vérifier avant le départ.</p>`}
   else{
-    const all=acts(),dt=all.filter(a=>a.date===day);
-    h+=`<div class="chips">${days.map(d=>{const dd=new Date(d+'T12:00'),has=all.some(a=>a.date===d)||flights().some(f=>f.dep.startsWith(d));return`<button class="chip ${d===day?'on':''} ${has?'dot':''}" onclick="day='${d}';render()">${dd.toLocaleDateString('fr-FR',{weekday:'short'})}<b>${dd.getDate()}</b></button>`}).join('')}</div>
-    <div class="sum"><div class="m">Ce jour<b>${eur(dt.reduce((s,a)=>s+(a.price||0),0))}</b></div><div class="m">Total voyage<b>${eur(all.reduce((s,a)=>s+(a.price||0),0))}</b></div></div>
+    const all=acts(),dt=all.filter(a=>a.date<=day&&(a.end||a.date)>=day),k=a=>day===a.date?(a.time||'99:99'):'';
+    h+=`<div class="chips">${days.map(d=>{const dd=new Date(d+'T12:00'),has=all.some(a=>a.date<=d&&(a.end||a.date)>=d)||flights().some(f=>f.dep.startsWith(d));return`<button class="chip ${d===day?'on':''} ${has?'dot':''}" onclick="day='${d}';render()">${dd.toLocaleDateString('fr-FR',{weekday:'short'})}<b>${dd.getDate()}</b></button>`}).join('')}</div>
+    <div class="sum"><div class="m">Ce jour<b>${eur(dt.filter(a=>a.date===day).reduce((s,a)=>s+(a.price||0),0))}</b></div><div class="m">Total voyage<b>${eur(all.reduce((s,a)=>s+(a.price||0),0))}</b></div></div>
     <div class="gs" style="margin-top:0;text-transform:capitalize">${fmt(day)}</div>`;
     flights().filter(f=>f.dep.startsWith(day)).forEach(f=>h+=flCard(f,0));
-    dt.sort((a,b)=>(a.time||'').localeCompare(b.time||'')).forEach(a=>h+=`<div class="card act" onclick="openF('${a.id}')"><div class="ico">${a.cat||'✨'}</div><div class="x"><div class="row"><span class="big">${esc(a.title)}</span><span class="pr">${a.price?eur(a.price):''}</span></div>
-      <div class="m">${a.time||'Heure libre'}</div>
+    dt.sort((a,b)=>k(a).localeCompare(k(b))).forEach(a=>h+=`<div class="card act" onclick="openF('${a.id}')"><div class="ico">${a.cat||'✨'}</div><div class="x"><div class="row"><span class="big">${esc(a.title)}</span><span class="pr">${a.price?eur(a.price):''}</span></div>
+      <div class="m">${day===a.date?(a.time?(a.end?'Dès '+a.time:a.time):'Heure libre'):day===a.end?'Jusqu’à '+(a.etime||'la fin de journée'):'En cours'}${a.end&&day===a.date?' · jusqu’au '+a.end.slice(8)+'/'+a.end.slice(5,7):''}</div>
       ${a.addr?`<a class="tag" onclick="event.stopPropagation()" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(a.addr)}">📍 ${esc(a.addr)}</a>`:''}
       ${a.url?`<a class="tag" onclick="event.stopPropagation()" target="_blank" rel="noopener" href="${esc(link(a.url))}">🔗 Site web</a>`:''}${a.notes?`<div class="m" style="margin-top:6px">${esc(a.notes)}</div>`:''}</div></div>`);
     if(!dt.length)h+=`<div class="card m" style="text-align:center">Rien de prévu ce jour-là.<br>Appuie sur + ou pioche une idée dans le Guide 🧭</div>`}
   $('#main').innerHTML=h}
 function openF(id,p){const a=id?items.find(i=>i.id===id):(p||{});$('#dh').textContent=id?'Modifier l’activité':'Nouvelle activité';
-  $('#fid').value=id||'';$('#ft').value=a.title||'';$('#fc').value=a.cat||'✨';$('#fd').value=a.date||day;$('#fh').value=a.time||'';$('#fp').value=a.price||'';$('#fu').value=a.url||'';$('#fa').value=a.addr||'';$('#fn').value=a.notes||'';
+  $('#fid').value=id||'';$('#ft').value=a.title||'';$('#fc').value=a.cat||'✨';$('#fd').value=a.date||day;$('#fh').value=a.time||'';$('#fe').value=a.end||'';$('#fz').value=a.etime||'';$('#fp').value=a.price||'';$('#fu').value=a.url||'';$('#fa').value=a.addr||'';$('#fn').value=a.notes||'';
   $('#fdel').style.display=id?'':'none';dlg.showModal()}
 function openG(i){const g=G[i];openF('',{title:g.t,cat:g.c,addr:g.a})}
-function saveF(e){e.preventDefault();const o={id:$('#fid').value||'a'+Date.now().toString(36),type:'act',title:$('#ft').value.trim(),cat:$('#fc').value,date:$('#fd').value,time:$('#fh').value,price:parseFloat($('#fp').value)||0,url:$('#fu').value.trim(),addr:$('#fa').value.trim(),notes:$('#fn').value.trim(),updatedAt:Date.now()};
+function saveF(e){e.preventDefault();const o={id:$('#fid').value||'a'+Date.now().toString(36),type:'act',title:$('#ft').value.trim(),cat:$('#fc').value,date:$('#fd').value,time:$('#fh').value,end:$('#fe').value,etime:$('#fz').value,price:parseFloat($('#fp').value)||0,url:$('#fu').value.trim(),addr:$('#fa').value.trim(),notes:$('#fn').value.trim(),updatedAt:Date.now()};
   if(days.includes(o.date))day=o.date;tab='agenda';put(o);dlg.close()}
 function delF(){if(!confirm('Supprimer cette activité ?'))return;const a=items.find(i=>i.id===$('#fid').value);put({...a,deleted:true,updatedAt:Date.now()});dlg.close()}
 addEventListener('online',sync);addEventListener('offline',()=>setS('offline'));setInterval(cd,6e4);
