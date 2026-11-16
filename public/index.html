@@ -1,52 +1,62 @@
 <!doctype html>
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0046ae"><link rel="manifest" href="/manifest.json"><title>Voyage Moldavie</title>
+<meta name="theme-color" content="#0b1f4d"><link rel="manifest" href="/manifest.json"><title>Voyage Moldavie</title>
 <style>
-:root{--bg:#f4f5f9;--c:#fff;--t:#1a1d29;--m:#6b7080;--b:#0046ae;--y:#ffd200;--r:#cc092f;--l:#e2e5ee}
-@media(prefers-color-scheme:dark){:root{--bg:#10131c;--c:#1a1f2d;--t:#eef0f6;--m:#9aa0b3;--l:#2a3042;--b:#6b9cf0}}
-*{box-sizing:border-box}
-body{margin:0;font:16px/1.4 system-ui,sans-serif;background:var(--bg);color:var(--t);padding-bottom:calc(76px + env(safe-area-inset-bottom))}
-header{background:#0046ae;color:#fff;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;border-bottom:4px solid var(--y)}
-header h1{margin:0;font-size:1.15rem;display:flex;justify-content:space-between;align-items:center;gap:8px}
-#st{font-size:.72rem;font-weight:600;padding:3px 9px;border-radius:99px;background:#fff3;white-space:nowrap}
-#cd{margin-top:6px;font-size:.95rem;opacity:.95}
-main{max-width:720px;margin:0 auto;padding:14px}
-.card{background:var(--c);border:1px solid var(--l);border-radius:14px;padding:12px 14px;margin-bottom:10px}
-.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.m{color:var(--m);font-size:.85rem}.big{font-weight:700;font-size:1.05rem}
-.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:6px}
-.chip{flex:0 0 auto;border:1px solid var(--l);background:var(--c);color:var(--t);border-radius:12px;padding:6px 12px;text-align:center;font-size:.8rem}
-.chip.on{background:var(--b);color:#fff;border-color:var(--b)}.chip b{display:block;font-size:1rem}
-.fl{border-left:4px solid var(--y)}
-button,input,textarea{font:inherit;color:inherit}
-.btn{border:1px solid var(--l);background:var(--bg);border-radius:10px;padding:7px 12px}
-.btn.ok{background:#1a8f4a;color:#fff;border-color:#1a8f4a}
-.pr{color:var(--r);font-weight:700}
+:root{--bg:#f3f4f9;--c:#fff;--t:#161a2b;--m:#69708a;--b:#1d4fd7;--y:#ffc928;--r:#d6203f;--l:#e5e8f2;--sh:0 6px 20px #1a265a14}
+@media(prefers-color-scheme:dark){:root{--bg:#0b0e18;--c:#151a2a;--t:#eef1fa;--m:#98a0ba;--l:#242b42;--b:#7ea2ff;--sh:0 6px 20px #0006}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--t);padding-bottom:calc(88px + env(safe-area-inset-bottom))}
+.hero{background:linear-gradient(135deg,#0b1f4d,#1d4fd7 60%,#3d6df0);color:#fff;padding:calc(18px + env(safe-area-inset-top)) 18px 56px;position:relative;border-radius:0 0 28px 28px}
+.hero:after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;background:linear-gradient(90deg,#0046ae 33%,var(--y) 33% 66%,var(--r) 66%);border-radius:0 0 28px 28px}
+.top{display:flex;justify-content:space-between;align-items:center}
+.top h1{margin:0;font-size:1.3rem;letter-spacing:-.3px}.top small{display:block;opacity:.75;font-size:.8rem;font-weight:400}
+#st{font-size:.7rem;font-weight:700;padding:4px 10px;border-radius:99px;background:#ffffff26;backdrop-filter:blur(6px)}
+#cd{display:flex;gap:10px;margin-top:16px;align-items:stretch}
+.tl{background:#ffffff1f;border-radius:14px;padding:8px 12px;text-align:center;min-width:64px}.tl b{display:block;font-size:1.5rem;line-height:1.1}.tl span{font-size:.68rem;opacity:.8;text-transform:uppercase;letter-spacing:.5px}
+#cdl{margin-top:8px;font-size:.85rem;opacity:.85}
+main{max-width:720px;margin:-34px auto 0;padding:0 14px;position:relative}
+.card{background:var(--c);border-radius:20px;padding:14px 16px;margin-bottom:12px;box-shadow:var(--sh)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.m{color:var(--m);font-size:.84rem}.big{font-weight:700}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 12px;scrollbar-width:none}
+.chip{flex:0 0 54px;border:0;background:var(--c);color:var(--t);border-radius:16px;padding:8px 0;text-align:center;font-size:.72rem;box-shadow:var(--sh);text-transform:uppercase}
+.chip b{display:block;font-size:1.2rem}.chip.on{background:var(--b);color:#fff}.chip.dot:after{content:"";display:block;width:5px;height:5px;margin:2px auto 0;border-radius:50%;background:var(--y)}
+.sum{display:flex;gap:10px;margin:2px 0 12px}.sum div{flex:1;background:var(--c);border-radius:16px;padding:10px 14px;box-shadow:var(--sh)}.sum b{display:block;font-size:1.15rem;color:var(--r)}
+.bp{padding:0;overflow:hidden}.bp .a{padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+.bp .code{font-size:1.8rem;font-weight:800;letter-spacing:1px}.bp .pl{font-size:1.4rem;color:var(--b)}
+.bp .z{border-top:2px dashed var(--l);padding:10px 16px;display:flex;justify-content:space-between;align-items:center;background:color-mix(in srgb,var(--y) 10%,transparent)}
+.act{display:flex;gap:12px}.ico{flex:0 0 46px;height:46px;border-radius:14px;background:color-mix(in srgb,var(--b) 14%,transparent);display:grid;place-items:center;font-size:1.4rem}
+.act .x{flex:1;min-width:0}.pr{color:var(--r);font-weight:800;white-space:nowrap}
+.tag{display:inline-block;font-size:.75rem;padding:3px 10px;border-radius:99px;background:var(--bg);margin:6px 6px 0 0;color:var(--t);text-decoration:none}
 a{color:var(--b)}
-nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--c);border-top:1px solid var(--l);padding-bottom:env(safe-area-inset-bottom)}
-nav button{flex:1;border:0;background:none;padding:14px 4px;font-weight:600;color:var(--m)}
-nav button.on{color:var(--b);box-shadow:inset 0 3px var(--b)}
-#fab{position:fixed;right:16px;bottom:calc(74px + env(safe-area-inset-bottom));width:56px;height:56px;border-radius:50%;border:0;background:var(--r);color:#fff;font-size:2rem;box-shadow:0 4px 12px #0005}
-dialog{border:0;border-radius:16px;padding:16px;width:min(94vw,460px);background:var(--c);color:var(--t)}
-dialog::backdrop{background:#0008}
-label{display:block;font-size:.8rem;color:var(--m);margin-top:10px}
-input,textarea{width:100%;padding:9px;border:1px solid var(--l);border-radius:10px;background:var(--bg)}
+button,input,textarea,select{font:inherit;color:inherit}
+.btn{border:0;background:var(--bg);border-radius:12px;padding:8px 14px;font-weight:600}.btn.ok{background:#1a8f4a;color:#fff}.btn.pri{background:var(--b);color:#fff}
+.gs{font-size:1.05rem;font-weight:800;margin:18px 4px 8px}
+nav{position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));display:flex;background:var(--c);border-radius:22px;box-shadow:0 8px 30px #0003;max-width:696px;margin:0 auto;padding:6px}
+nav button{flex:1;border:0;background:none;padding:9px 0;border-radius:16px;font-size:.72rem;font-weight:700;color:var(--m)}nav button span{display:block;font-size:1.25rem}
+nav button.on{background:color-mix(in srgb,var(--b) 15%,transparent);color:var(--b)}
+#fab{position:fixed;right:20px;bottom:calc(96px + env(safe-area-inset-bottom));width:58px;height:58px;border-radius:20px;border:0;background:var(--r);color:#fff;font-size:2rem;box-shadow:0 8px 20px #d6203f66}
+dialog{border:0;border-radius:24px;padding:18px;width:min(94vw,460px);background:var(--c);color:var(--t)}dialog::backdrop{background:#000a}
+dialog h2{margin:0 0 4px;font-size:1.15rem}
+label{display:block;font-size:.76rem;color:var(--m);margin-top:10px;font-weight:600}
+input,textarea,select{width:100%;padding:11px;border:1px solid var(--l);border-radius:12px;background:var(--bg)}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 </style></head><body>
-<header><h1><span>🇲🇩 Voyage en Moldavie</span><span id="st"></span></h1><div id="cd"></div></header>
+<div class="hero"><div class="top"><h1>🇲🇩 Moldavie<small>Décembre 2026</small></h1><span id="st"></span></div><div id="cd"></div><div id="cdl"></div></div>
 <main id="main"></main>
 <button id="fab" onclick="openF()" aria-label="Ajouter">+</button>
-<nav><button id="t-agenda" onclick="setTab('agenda')">📅 Agenda</button><button id="t-vols" onclick="setTab('vols')">✈️ Vols</button></nav>
-<dialog id="dlg"><form onsubmit="saveF(event)">
+<nav><button id="t-agenda" onclick="setTab('agenda')"><span>📅</span>Agenda</button><button id="t-vols" onclick="setTab('vols')"><span>✈️</span>Vols</button><button id="t-guide" onclick="setTab('guide')"><span>🧭</span>Guide</button></nav>
+<dialog id="dlg"><form onsubmit="saveF(event)"><h2 id="dh">Nouvelle activité</h2>
 <input type="hidden" id="fid">
 <label>Activité</label><input id="ft" required placeholder="Ex. Visite de Cricova">
+<div class="g2"><div><label>Catégorie</label><select id="fc"><option>✨</option><option>🍷</option><option>🏛️</option><option>🌳</option><option>🍽️</option><option>🛍️</option><option>🚌</option><option>🛏️</option></select></div><div><label>Prix (€)</label><input id="fp" type="number" step="0.01" min="0" inputmode="decimal"></div></div>
 <div class="g2"><div><label>Date</label><input id="fd" type="date" required></div><div><label>Heure</label><input id="fh" type="time"></div></div>
-<div class="g2"><div><label>Prix (€)</label><input id="fp" type="number" step="0.01" min="0" inputmode="decimal"></div><div><label>Site web</label><input id="fu" placeholder="https://…"></div></div>
+<label>Site web</label><input id="fu" placeholder="https://…">
 <label>Adresse</label><input id="fa" placeholder="Rue, ville">
 <label>Notes</label><textarea id="fn" rows="2"></textarea>
-<div class="row" style="margin-top:14px"><button type="button" class="btn" id="fdel" onclick="delF()" style="color:var(--r)">Supprimer</button>
-<span><button type="button" class="btn" onclick="dlg.close()">Annuler</button> <button class="btn ok">Enregistrer</button></span></div>
+<div class="row" style="margin-top:16px"><button type="button" class="btn" id="fdel" onclick="delF()" style="color:var(--r)">Supprimer</button>
+<span><button type="button" class="btn" onclick="dlg.close()">Annuler</button> <button class="btn pri">Enregistrer</button></span></div>
 </form></dialog>
 <script>
 const K='moldavie_items',T='moldavie_token',$=s=>document.querySelector(s),dlg=$('#dlg');
@@ -58,13 +68,30 @@ const SEED=[['f1','BOD','BER','Bordeaux','Berlin','2026-12-07 21:10','2026-12-07
 ['f5','SOF','BCN','Sofia','Barcelone','2026-12-19 22:10','2026-12-20 00:10','Ryanair FR 6329',2],
 ['f6','BCN','BOD','Barcelone','Bordeaux','2026-12-20 07:40','2026-12-20 08:55','Vueling VY 8120',1]]
 .map(([id,a,b,fa,fb,dep,arr,co,tz])=>({id,type:'flight',a,b,fa,fb,dep,arr,co,tz,done:false,updatedAt:1}));
+const WV='https://fr.wikivoyage.org/wiki/Chișinău';
+// Guide : résumés rédigés d’après Wikivoyage (CC BY-SA), embarqués pour fonctionner hors ligne
+const G=[
+{c:'🍷',t:'Cricova',d:'Caves à vin souterraines aux portes de la capitale : on les visite en galeries avec dégustation. Réserve à l’avance.',a:'Cricova, Moldavie'},
+{c:'🍷',t:'Mileștii Mici',d:'Immense cave-labyrinthe, l’une des plus grandes collections de vin au monde. Visite et dégustation.',a:'Mileștii Mici, Moldavie'},
+{c:'🏛️',t:'Orheiul Vechi',d:'Complexe monastique troglodyte et site archéologique en pleine nature, la grande excursion à la journée depuis Chișinău.',a:'Orheiul Vechi, Moldavie'},
+{c:'🌳',t:'Jardin botanique',d:'Le plus grand parc de Chișinău, près de la porte de la ville. Trolleybus 22 ou 30 depuis le centre.',a:'Grădina Botanică, Chișinău'},
+{c:'🌳',t:'Parc Râșcani',d:'32 hectares boisés pour des promenades calmes. Bus 5 ou A.',a:'Parcul Râșcani, Chișinău'},
+{c:'🌳',t:'Parc Ștefan cel Mare',d:'Le grand parc central, idéal pour une balade entre deux visites.',a:'Parcul Ștefan cel Mare, Chișinău'},
+{c:'🛍️',t:'Marché central (Piața Centrală)',d:'Fromages, plăcinte (feuilletés), repas simples et bon marché. Auberges bon marché à proximité.',a:'Piața Centrală, Chișinău'},
+{c:'🍽️',t:'Boulangeries de quartier',d:'Pâtisseries et café du matin simples et très bons, partout en ville.',a:'Chișinău'}];
+const INFO=[['💶','Monnaie','Leu moldave (MDL). Cartes acceptées en ville, garde un peu de cash pour les marchés et les excursions.'],
+['🛬','Aéroport','Chișinău (RMO) est le seul aéroport international. Wizz Air, HiSky et Fly One y desservent plusieurs villes. Iași (Roumanie) est l’aéroport voisin.'],
+['🚆','Transports','Une seule gare ferroviaire (Gara Centrală, trains vers la Roumanie et l’Ukraine). Gares routières pour les trajets dans le pays.'],
+['🧥','Décembre','Hiver froid : prévois manteau chaud, gants, bonnet et chaussures étanches.'],
+['🔌','Prises','230 V, prises européennes (type C/F), comme en France.'],
+['🛂','Entrée','Vérifie les conditions d’entrée et les conseils aux voyageurs sur le site du ministère des Affaires étrangères. Évite la Transnistrie sans te renseigner.']];
 let items=JSON.parse(localStorage.getItem(K)||'null')||SEED.slice(),tab='agenda';
 const days=[];for(let d=new Date('2026-12-07T12:00');d<=new Date('2026-12-20T12:00');d.setDate(d.getDate()+1))days.push(d.toISOString().slice(0,10));
 const today=new Date().toLocaleDateString('sv');let day=days.includes(today)?today:days[0];
 const live=()=>items.filter(i=>!i.deleted),utc=f=>{const[d,t]=f.dep.split(' '),[y,m,da]=d.split('-').map(Number),[h,mi]=t.split(':').map(Number);return Date.UTC(y,m-1,da,h,mi)-f.tz*36e5};
 const flights=()=>live().filter(i=>i.type==='flight').sort((a,b)=>utc(a)-utc(b)),acts=()=>live().filter(i=>i.type==='act');
 const fmt=d=>new Date(d+'T12:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
-const eur=n=>n?n.toLocaleString('fr-FR',{style:'currency',currency:'EUR'}):'';
+const eur=n=>(n||0).toLocaleString('fr-FR',{style:'currency',currency:'EUR'});
 const link=u=>/^https?:\/\//i.test(u)?u:'https://'+u;
 function save(){localStorage.setItem(K,JSON.stringify(items));render();sync()}
 function put(o){const i=items.findIndex(x=>x.id===o.id);i<0?items.push(o):items[i]=o;save()}
@@ -77,37 +104,44 @@ async function sync(){
     d.items.forEach(s=>{const l=m.get(s.id);if(!l||s.updatedAt>l.updatedAt)m.set(s.id,s)});
     items=[...m.values()];localStorage.setItem(K,JSON.stringify(items));render();setS('ok')}
   catch(e){setS('offline')}}
-function setTab(t){tab=t;render()}
-function cd(){const n=Date.now(),f=flights().find(f=>utc(f)>n);if(!f)return'Voyage terminé 🏠';
-  const m=Math.floor((utc(f)-n)/6e4),j=Math.floor(m/1440),h=Math.floor(m%1440/60);
-  return`Prochain vol (${f.a} → ${f.b}) dans ${j?j+' j ':''}${h} h ${m%60} min`}
-const flCard=(f,full)=>`<div class="card fl"><div class="row"><span class="big">${f.a} → ${f.b}</span><span class="m">${esc(f.co)}</span></div>
-<div class="m">${f.fa} → ${f.fb}</div><div class="row" style="margin-top:4px"><span>${f.dep.slice(11)} → ${f.arr.slice(11)}${f.arr.slice(0,10)!==f.dep.slice(0,10)?' (+1)':''}</span>
-${full?`<button class="btn ${f.done?'ok':''}" onclick="chk('${f.id}')">${f.done?'✓ Enregistré':'Enregistrement ?'}</button>`:''}</div></div>`;
+function setTab(t){tab=t;render();scrollTo(0,0)}
+function cd(){const n=Date.now(),f=flights().find(f=>utc(f)>n);if(!f){$('#cd').innerHTML='<div class="tl"><b>🏠</b><span>Voyage terminé</span></div>';$('#cdl').textContent='';return}
+  const m=Math.floor((utc(f)-n)/6e4);$('#cd').innerHTML=[[Math.floor(m/1440),'jours'],[Math.floor(m%1440/60),'heures'],[m%60,'min']].map(x=>`<div class="tl"><b>${x[0]}</b><span>${x[1]}</span></div>`).join('');
+  $('#cdl').textContent=`Prochain vol : ${f.fa} → ${f.fb} (${f.co})`}
+const flCard=(f,full)=>`<div class="card bp"><div class="a"><div><div class="code">${f.a}</div><div class="m">${f.fa}</div></div><div class="pl">✈</div><div style="text-align:right"><div class="code">${f.b}</div><div class="m">${f.fb}</div></div></div>
+<div class="z"><div><div class="big">${f.dep.slice(11)} → ${f.arr.slice(11)}${f.arr.slice(0,10)!==f.dep.slice(0,10)?' +1':''}</div><div class="m">${esc(f.co)}</div></div>
+${full?`<button class="btn ${f.done?'ok':''}" onclick="chk('${f.id}')">${f.done?'✓ Enregistré':'Enregistré ?'}</button>`:''}</div></div>`;
 function chk(id){const f=items.find(i=>i.id===id);put({...f,done:!f.done,updatedAt:Date.now()})}
 function render(){
-  $('#cd').textContent=cd();$('#t-agenda').className=tab==='agenda'?'on':'';$('#t-vols').className=tab==='vols'?'on':'';$('#fab').style.display=tab==='agenda'?'':'none';
+  cd();['agenda','vols','guide'].forEach(t=>$('#t-'+t).className=tab===t?'on':'');$('#fab').style.display=tab==='agenda'?'':'none';
   let h='';
-  if(tab==='vols'){let last='';flights().forEach(f=>{const d=f.dep.slice(0,10);if(d!==last){h+=`<h3 style="text-transform:capitalize">${fmt(d)}</h3>`;last=d}h+=flCard(f,1)});
-    h+=`<p class="m">⚠️ Correspondances à Sofia et Barcelone : billets séparés, prévois du temps (attente de 7 h 30 à Sofia, nuit à l’aéroport). Horaires en heure locale.</p>`}
+  if(tab==='vols'){let last='';flights().forEach(f=>{const d=f.dep.slice(0,10);if(d!==last){h+=`<div class="gs" style="text-transform:capitalize">${fmt(d)}</div>`;last=d}h+=flCard(f,1)});
+    h+=`<div class="card m">⚠️ Correspondances à Sofia et Barcelone : billets séparés (7 h 30 d’attente à Sofia, nuit à l’aéroport de Barcelone). Horaires en heure locale.</div>`}
+  else if(tab==='guide'){
+    h+=`<div class="gs" style="margin-top:4px">À voir autour de Chișinău</div>`+G.map((g,i)=>`<div class="card act"><div class="ico">${g.c}</div><div class="x"><div class="big">${g.t}</div><div class="m">${g.d}</div>
+      <button class="btn pri" style="margin-top:8px" onclick="openG(${i})">+ Ajouter à l’agenda</button></div></div>`).join('')
+    +`<div class="gs">Infos pratiques</div>`+INFO.map(i=>`<div class="card act"><div class="ico">${i[0]}</div><div class="x"><div class="big">${i[1]}</div><div class="m">${i[2]}</div></div></div>`).join('')
+    +`<p class="m" style="text-align:center">Résumés d’après <a href="${WV}" target="_blank" rel="noopener">Wikivoyage</a> (CC BY-SA). Infos à vérifier avant le départ.</p>`}
   else{
-    const all=acts(),tot=all.reduce((s,a)=>s+(a.price||0),0),dt=all.filter(a=>a.date===day);
-    h+=`<div class="chips">${days.map(d=>{const dd=new Date(d+'T12:00');return`<button class="chip ${d===day?'on':''}" onclick="day='${d}';render()">${dd.toLocaleDateString('fr-FR',{weekday:'short'})}<b>${dd.getDate()}</b></button>`}).join('')}</div>
-    <div class="row m" style="margin-bottom:8px"><span style="text-transform:capitalize">${fmt(day)}</span><span>Jour : ${eur(dt.reduce((s,a)=>s+(a.price||0),0))||'0 €'} · Total : ${eur(tot)||'0 €'}</span></div>`;
+    const all=acts(),dt=all.filter(a=>a.date===day);
+    h+=`<div class="chips">${days.map(d=>{const dd=new Date(d+'T12:00'),has=all.some(a=>a.date===d)||flights().some(f=>f.dep.startsWith(d));return`<button class="chip ${d===day?'on':''} ${has?'dot':''}" onclick="day='${d}';render()">${dd.toLocaleDateString('fr-FR',{weekday:'short'})}<b>${dd.getDate()}</b></button>`}).join('')}</div>
+    <div class="sum"><div class="m">Ce jour<b>${eur(dt.reduce((s,a)=>s+(a.price||0),0))}</b></div><div class="m">Total voyage<b>${eur(all.reduce((s,a)=>s+(a.price||0),0))}</b></div></div>
+    <div class="gs" style="margin-top:0;text-transform:capitalize">${fmt(day)}</div>`;
     flights().filter(f=>f.dep.startsWith(day)).forEach(f=>h+=flCard(f,0));
-    dt.sort((a,b)=>(a.time||'').localeCompare(b.time||'')).forEach(a=>h+=`<div class="card"><div class="row"><span class="big">${a.time?a.time+' · ':''}${esc(a.title)}</span><span class="pr">${eur(a.price)}</span></div>
-      ${a.addr?`<div>📍 <a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(a.addr)}">${esc(a.addr)}</a></div>`:''}
-      ${a.url?`<div>🔗 <a target="_blank" rel="noopener" href="${esc(link(a.url))}">Site web</a></div>`:''}${a.notes?`<div class="m">${esc(a.notes)}</div>`:''}
-      <div style="margin-top:6px"><button class="btn" onclick="openF('${a.id}')">Modifier</button></div></div>`);
-    if(!dt.length)h+=`<p class="m" style="text-align:center">Rien de prévu — appuie sur + pour ajouter une activité.</p>`}
+    dt.sort((a,b)=>(a.time||'').localeCompare(b.time||'')).forEach(a=>h+=`<div class="card act" onclick="openF('${a.id}')"><div class="ico">${a.cat||'✨'}</div><div class="x"><div class="row"><span class="big">${esc(a.title)}</span><span class="pr">${a.price?eur(a.price):''}</span></div>
+      <div class="m">${a.time||'Heure libre'}</div>
+      ${a.addr?`<a class="tag" onclick="event.stopPropagation()" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(a.addr)}">📍 ${esc(a.addr)}</a>`:''}
+      ${a.url?`<a class="tag" onclick="event.stopPropagation()" target="_blank" rel="noopener" href="${esc(link(a.url))}">🔗 Site web</a>`:''}${a.notes?`<div class="m" style="margin-top:6px">${esc(a.notes)}</div>`:''}</div></div>`);
+    if(!dt.length)h+=`<div class="card m" style="text-align:center">Rien de prévu ce jour-là.<br>Appuie sur + ou pioche une idée dans le Guide 🧭</div>`}
   $('#main').innerHTML=h}
-function openF(id){const a=id?items.find(i=>i.id===id):{};
-  $('#fid').value=a.id||'';$('#ft').value=a.title||'';$('#fd').value=a.date||day;$('#fh').value=a.time||'';$('#fp').value=a.price||'';$('#fu').value=a.url||'';$('#fa').value=a.addr||'';$('#fn').value=a.notes||'';
+function openF(id,p){const a=id?items.find(i=>i.id===id):(p||{});$('#dh').textContent=id?'Modifier l’activité':'Nouvelle activité';
+  $('#fid').value=id||'';$('#ft').value=a.title||'';$('#fc').value=a.cat||'✨';$('#fd').value=a.date||day;$('#fh').value=a.time||'';$('#fp').value=a.price||'';$('#fu').value=a.url||'';$('#fa').value=a.addr||'';$('#fn').value=a.notes||'';
   $('#fdel').style.display=id?'':'none';dlg.showModal()}
-function saveF(e){e.preventDefault();const o={id:$('#fid').value||'a'+Date.now().toString(36),type:'act',title:$('#ft').value.trim(),date:$('#fd').value,time:$('#fh').value,price:parseFloat($('#fp').value)||0,url:$('#fu').value.trim(),addr:$('#fa').value.trim(),notes:$('#fn').value.trim(),updatedAt:Date.now()};
-  if(days.includes(o.date))day=o.date;put(o);dlg.close()}
+function openG(i){const g=G[i];openF('',{title:g.t,cat:g.c,addr:g.a})}
+function saveF(e){e.preventDefault();const o={id:$('#fid').value||'a'+Date.now().toString(36),type:'act',title:$('#ft').value.trim(),cat:$('#fc').value,date:$('#fd').value,time:$('#fh').value,price:parseFloat($('#fp').value)||0,url:$('#fu').value.trim(),addr:$('#fa').value.trim(),notes:$('#fn').value.trim(),updatedAt:Date.now()};
+  if(days.includes(o.date))day=o.date;tab='agenda';put(o);dlg.close()}
 function delF(){if(!confirm('Supprimer cette activité ?'))return;const a=items.find(i=>i.id===$('#fid').value);put({...a,deleted:true,updatedAt:Date.now()});dlg.close()}
-addEventListener('online',sync);addEventListener('offline',()=>setS('offline'));setInterval(()=>$('#cd').textContent=cd(),6e4);
+addEventListener('online',sync);addEventListener('offline',()=>setS('offline'));setInterval(cd,6e4);
 if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js');
 render();sync();
 </script></body></html>
