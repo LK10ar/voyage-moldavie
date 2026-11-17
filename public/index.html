@@ -42,23 +42,36 @@ dialog h2{margin:0 0 4px;font-size:1.15rem}
 label{display:block;font-size:.76rem;color:var(--m);margin-top:10px;font-weight:600}
 input,textarea,select{width:100%;padding:11px;border:1px solid var(--l);border-radius:12px;background:var(--bg)}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sh{position:fixed;inset:0;background:#000a;display:none;align-items:flex-end;justify-content:center;z-index:50}.sh.open{display:flex}
+.pn{background:var(--c);width:100%;max-width:520px;max-height:92vh;max-height:92dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-radius:24px 24px 0 0;padding:16px 16px 0}
+.pn h2{margin:0;font-size:1.15rem}
+.ft{position:sticky;bottom:0;background:var(--c);display:flex;gap:10px;padding:12px 0 calc(12px + env(safe-area-inset-bottom));margin-top:14px}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tile{border:2px solid transparent;background:var(--bg);border-radius:14px;padding:8px 2px;font-size:.78rem;font-weight:600}.tile span{display:block;font-size:1.4rem}
+.tile.on{border-color:var(--b);background:color-mix(in srgb,var(--b) 14%,transparent)}
+#toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#111d;color:#fff;padding:10px 18px;border-radius:99px;opacity:0;pointer-events:none;transition:.25s;z-index:60;font-weight:600;white-space:nowrap}#toast.on{opacity:1}
+.sum{flex-wrap:wrap}.sum div{flex:1 1 calc(50% - 5px)}
+.row2{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-top:1px solid var(--l)}
+.big2{font-size:1.8rem;font-weight:800;color:var(--r);line-height:1.15}
 </style></head><body>
 <div class="hero"><div class="top"><h1>🇲🇩 Moldavie<small>Décembre 2026</small></h1><span id="st"></span></div><div id="cd"></div><div id="cdl"></div></div>
 <main id="main"></main>
 <button id="fab" onclick="openF()" aria-label="Ajouter">+</button>
-<nav><button id="t-agenda" onclick="setTab('agenda')"><span>📅</span>Agenda</button><button id="t-vols" onclick="setTab('vols')"><span>✈️</span>Vols</button><button id="t-guide" onclick="setTab('guide')"><span>🧭</span>Guide</button></nav>
-<dialog id="dlg"><form onsubmit="saveF(event)"><h2 id="dh">Nouvelle activité</h2>
-<input type="hidden" id="fid">
-<label>Activité</label><input id="ft" required placeholder="Ex. Visite de Cricova">
-<div class="g2"><div><label>Catégorie</label><select id="fc"><option>✨</option><option>🍷</option><option>🏛️</option><option>🌳</option><option>🍽️</option><option>🛍️</option><option>🚌</option><option>🛏️</option></select></div><div><label>Prix (€)</label><input id="fp" type="number" step="0.01" min="0" inputmode="decimal"></div></div>
-<div class="g2"><div><label>Date</label><input id="fd" type="date" required></div><div><label>Heure</label><input id="fh" type="time"></div></div>
-<div class="g2"><div><label>Jusqu’au (séjour, location…)</label><input id="fe" type="date"></div><div><label>Heure de fin</label><input id="fz" type="time"></div></div>
+<nav><button id="t-agenda" onclick="setTab('agenda')"><span>📅</span>Agenda</button><button id="t-vols" onclick="setTab('vols')"><span>✈️</span>Vols</button><button id="t-budget" onclick="setTab('budget')"><span>💰</span>Budget</button><button id="t-guide" onclick="setTab('guide')"><span>🧭</span>Guide</button></nav>
+<div id="toast"></div>
+<div id="sh" class="sh" onclick="if(event.target===this)closeF()"><form class="pn" onsubmit="saveF(event)">
+<div class="row"><h2 id="dh">Nouvelle activité</h2><button type="button" class="btn" onclick="closeF()">✕</button></div>
+<input type="hidden" id="fid"><input type="hidden" id="fc">
+<label>Type</label><div class="tiles" id="tiles"></div>
+<label>Titre</label><input id="ft" required placeholder="Ex. Visite de Cricova">
+<div class="g2"><div><label id="l1">Date</label><input id="fd" type="date" required></div><div><label id="l2">Heure</label><input id="fh" type="time"></div></div>
+<div class="g2" id="multi"><div><label id="l3">Jusqu’au</label><input id="fe" type="date"></div><div><label id="l4">Heure de fin</label><input id="fz" type="time"></div></div>
+<div class="g2"><div><label>Prix (€)</label><input id="fp" type="text" inputmode="decimal" placeholder="0,00"></div><div><label>Ce prix est pour</label><select id="fm"><option value="0">Tout le groupe</option><option value="1">1 personne</option></select></div></div>
 <label>Site web</label><input id="fu" placeholder="https://…">
 <label>Adresse</label><input id="fa" placeholder="Rue, ville">
 <label>Notes</label><textarea id="fn" rows="2"></textarea>
-<div class="row" style="margin-top:16px"><button type="button" class="btn" id="fdel" onclick="delF()" style="color:var(--r)">Supprimer</button>
-<span><button type="button" class="btn" onclick="dlg.close()">Annuler</button> <button class="btn pri">Enregistrer</button></span></div>
-</form></dialog>
+<div class="ft"><button type="button" class="btn" id="fdel" onclick="delF()" style="color:var(--r)">Supprimer</button><button class="btn pri" style="flex:1">Enregistrer</button></div>
+</form></div>
 <script>
 const K='moldavie_items',T='moldavie_token',$=s=>document.querySelector(s),dlg=$('#dlg');
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -89,6 +102,7 @@ const INFO=[['💶','Monnaie','Leu moldave (MDL). Cartes acceptées en ville, ga
 let items=JSON.parse(localStorage.getItem(K)||'null')||SEED.slice(),tab='agenda';
 const PLAN=[
 {id:'p-h1',cat:'🛏️',title:'Aparthotel Bulevardul Moscova',date:'2026-12-08',time:'15:00',end:'2026-12-10',etime:'11:00',addr:'Bulevardul Moscova 15/1, 2068 Chișinău, Moldavie',notes:'2 adultes · 2 nuits · arrivée 15:00–23:00 · départ avant 11:00'},
+{id:'p-h2',cat:'🛏️',title:'Aparthotel Bulevardul Moscova (Studio Familial)',date:'2026-12-17',time:'15:00',end:'2026-12-19',etime:'11:00',addr:'Bulevardul Moscova 15/1, 2068 Chișinău, Moldavie',price:82,notes:'2 adultes · 2 nuits · ≈ 1 647 MDL payés sur place · annulation gratuite jusqu’au 15/12 à 23:59 · tél. +373 691 31 024'},
 {id:'p-d9',cat:'🌳',title:'Chișinău : parcs et musées',date:'2026-12-09',addr:'Chișinău, Moldavie',notes:'Ajoute chaque parc et musée avec son adresse et son prix.'},
 {id:'p-c1',cat:'🚗',title:'Location de voiture',date:'2026-12-10',time:'10:00',end:'2026-12-17',etime:'18:00',notes:'Retrait le 10/12 à 10:00 · retour le 17/12 à 18:00'},
 {id:'p-m1',cat:'🍷',title:'Cave de Mileștii Mici',date:'2026-12-10',time:'13:00',price:35.23,url:'https://milestii-mici.md/',addr:'Mileștii Mici, Moldavie',notes:'Pour 2 personnes'},
@@ -99,24 +113,33 @@ const PLAN=[
 ].map(p=>({time:'',url:'',price:0,...p,type:'act',updatedAt:1}));
 PLAN.forEach(p=>{if(!items.some(i=>i.id===p.id))items.push(p)});
 if(!items.some(i=>i.id==='p-fp'))items.push({id:'p-fp',type:'cost',base:440.98,extra:45,updatedAt:1});
+if(!items.some(i=>i.id==='p-cfg'))items.push({id:'p-cfg',type:'cfg',people:2,updatedAt:1});
 const days=[];for(let d=new Date('2026-12-07T12:00');d<=new Date('2026-12-20T12:00');d.setDate(d.getDate()+1))days.push(d.toISOString().slice(0,10));
 const today=new Date().toLocaleDateString('sv');let day=days.includes(today)?today:days[0];
 const live=()=>items.filter(i=>!i.deleted),utc=f=>{const[d,t]=f.dep.split(' '),[y,m,da]=d.split('-').map(Number),[h,mi]=t.split(':').map(Number);return Date.UTC(y,m-1,da,h,mi)-f.tz*36e5};
 const flights=()=>live().filter(i=>i.type==='flight').sort((a,b)=>utc(a)-utc(b)),acts=()=>live().filter(i=>i.type==='act');
 const fmt=d=>new Date(d+'T12:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
 const eur=n=>(n||0).toLocaleString('fr-FR',{style:'currency',currency:'EUR'});
+const num=v=>parseFloat(String(v).replace(',','.'))||0,cfg=()=>items.find(i=>i.id==='p-cfg')||{id:'p-cfg',type:'cfg',people:2},people=()=>Math.max(1,cfg().people||2);
+const fcost=()=>{const c=items.find(i=>i.id==='p-fp')||{base:0,extra:0};return(c.base+c.extra)*(c.pp?people():1)},cost=a=>(a.price||0)*(a.pp?people():1);
+const CN={'🛏️':'🛏️ Hébergement','🚗':'🚗 Voiture','🚌':'🚌 Transport','🍽️':'🍽️ Restaurants','🏛️':'🏛️ Visites','🍷':'🍷 Caves','🌳':'🌳 Nature','🛍️':'🛍️ Shopping','✨':'✨ Autre'};
+const fmtS=d=>new Date(d+'T12:00').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
 const link=u=>/^https?:\/\//i.test(u)?u:'https://'+u;
-function save(){localStorage.setItem(K,JSON.stringify(items));render();sync()}
+function save(){try{localStorage.setItem(K,JSON.stringify(items))}catch(e){toast('⚠️ Stockage bloqué')}render();sync()}
 function put(o){const i=items.findIndex(x=>x.id===o.id);i<0?items.push(o):items[i]=o;save()}
 function setS(s){$('#st').textContent={ok:'✓ Synchronisé',offline:'Hors ligne',wait:'…'}[s]}
+let busy=0,again=0;
 async function sync(){
-  if(!navigator.onLine)return setS('offline');setS('wait');
+  if(!navigator.onLine)return setS('offline');
+  if(busy){again=1;return}busy=1;setS('wait');
   try{const r=await fetch('/api/sync',{method:'POST',headers:{'Content-Type':'application/json','x-token':localStorage.getItem(T)||''},body:JSON.stringify({items})});
-    if(r.status===401){const t=prompt('Code d’accès');if(t){localStorage.setItem(T,t);return sync()}return setS('offline')}
+    if(r.status===401){busy=0;const t=prompt('Code d’accès');if(t){localStorage.setItem(T,t);return sync()}return setS('offline')}
     if(!r.ok)throw 0;const d=await r.json(),m=new Map(items.map(i=>[i.id,i]));
-    d.items.forEach(s=>{const l=m.get(s.id);if(!l||s.updatedAt>l.updatedAt)m.set(s.id,s)});
-    items=[...m.values()];localStorage.setItem(K,JSON.stringify(items));render();setS('ok')}
-  catch(e){setS('offline')}}
+    d.items.forEach(x=>{const l=m.get(x.id);if(!l||x.updatedAt>l.updatedAt)m.set(x.id,x)});
+    items=[...m.values()];try{localStorage.setItem(K,JSON.stringify(items))}catch(e){}
+    if(!document.activeElement||!document.activeElement.closest('#main'))render();setS('ok')}
+  catch(e){setS('offline');setTimeout(sync,20000)}
+  busy=0;if(again){again=0;sync()}}
 function setTab(t){tab=t;render();scrollTo(0,0)}
 function cd(){const n=Date.now(),f=flights().find(f=>utc(f)>n);if(!f){$('#cd').innerHTML='<div class="tl"><b>🏠</b><span>Voyage terminé</span></div>';$('#cdl').textContent='';return}
   const m=Math.floor((utc(f)-n)/6e4);$('#cd').innerHTML=[[Math.floor(m/1440),'jours'],[Math.floor(m%1440/60),'heures'],[m%60,'min']].map(x=>`<div class="tl"><b>${x[0]}</b><span>${x[1]}</span></div>`).join('');
@@ -124,41 +147,61 @@ function cd(){const n=Date.now(),f=flights().find(f=>utc(f)>n);if(!f){$('#cd').i
 const flCard=(f,full)=>`<div class="card bp"><div class="a"><div><div class="code">${f.a}</div><div class="m">${f.fa}</div></div><div class="pl">✈</div><div style="text-align:right"><div class="code">${f.b}</div><div class="m">${f.fb}</div></div></div>
 <div class="z"><div><div class="big">${f.dep.slice(11)} → ${f.arr.slice(11)}${f.arr.slice(0,10)!==f.dep.slice(0,10)?' +1':''}</div><div class="m">${esc(f.co)}</div></div>
 ${full?`<button class="btn ${f.done?'ok':''}" onclick="chk('${f.id}')">${f.done?'✓ Enregistré':'Enregistré ?'}</button>`:''}</div></div>`;
-function editCost(){const c=items.find(i=>i.id==='p-fp'),n=v=>parseFloat(String(v).replace(',','.'))||0;
-  const b=prompt('Prix des billets (€)',c.base);if(b===null)return;const e=prompt('Supplément : bagages, options… (€)',c.extra);if(e===null)return;
-  put({...c,base:n(b),extra:n(e),updatedAt:Date.now()})}
+function setP(v){put({...cfg(),people:Math.max(1,parseInt(v)||1),updatedAt:Date.now()})}
+function setF(k,v){const c=items.find(i=>i.id==='p-fp')||{id:'p-fp',type:'cost',base:0,extra:0};put({...c,[k]:k==='pp'?v==='1':num(v),updatedAt:Date.now()})}
 function chk(id){const f=items.find(i=>i.id===id);put({...f,done:!f.done,updatedAt:Date.now()})}
 function render(){
-  cd();['agenda','vols','guide'].forEach(t=>$('#t-'+t).className=tab===t?'on':'');$('#fab').style.display=tab==='agenda'?'':'none';
+  cd();['agenda','vols','budget','guide'].forEach(t=>$('#t-'+t).className=tab===t?'on':'');$('#fab').style.display=tab==='agenda'?'':'none';
   let h='';
   if(tab==='vols'){const c=items.find(i=>i.id==='p-fp')||{base:0,extra:0};
-    h+=`<div class="card" onclick="editCost()"><div class="row"><div><div class="m">Billets d’avion</div><div class="big" style="font-size:1.5rem;color:var(--r)">${eur(c.base+c.extra)}</div></div><div class="m" style="text-align:right">${eur(c.base)} billets<br>+ ${eur(c.extra)} supplément<br><i>Touche pour modifier</i></div></div></div>`;let last='';flights().forEach(f=>{const d=f.dep.slice(0,10);if(d!==last){h+=`<div class="gs" style="text-transform:capitalize">${fmt(d)}</div>`;last=d}h+=flCard(f,1)});
+    h+=`<div class="card" onclick="setTab('budget')"><div class="row"><div><div class="m">Billets d’avion</div><div class="big" style="font-size:1.5rem;color:var(--r)">${eur(fcost())}</div></div><div class="m" style="text-align:right">${eur(c.base)} billets<br>+ ${eur(c.extra)} supplément<br><i>Détails dans Budget</i></div></div></div>`;let last='';flights().forEach(f=>{const d=f.dep.slice(0,10);if(d!==last){h+=`<div class="gs" style="text-transform:capitalize">${fmt(d)}</div>`;last=d}h+=flCard(f,1)});
     h+=`<div class="card m">⚠️ Correspondances à Sofia et Barcelone : billets séparés (7 h 30 d’attente à Sofia, nuit à l’aéroport de Barcelone). Horaires en heure locale.</div>`}
+  else if(tab==='budget'){
+    const all=acts(),n=people(),c=items.find(i=>i.id==='p-fp')||{base:0,extra:0},cat={'✈️ Billets d’avion':fcost()};
+    all.forEach(a=>{const k=CN[a.cat]||CN['✨'];cat[k]=(cat[k]||0)+cost(a)});
+    const tot=Object.values(cat).reduce((s,v)=>s+v,0);let run=fcost();
+    const dts=[...new Set(all.filter(a=>cost(a)>0).map(a=>a.date))].sort(),v2=x=>String(x).replace('.',',');
+    h+=`<div class="sum" style="margin-top:4px"><div class="m">Total du voyage<span class="big2" style="display:block">${eur(tot)}</span></div><div class="m">Par personne (${n})<span class="big2" style="display:block;color:var(--b)">${eur(tot/n)}</span></div></div>
+    <div class="card"><div class="gs" style="margin:0 0 4px">Détail par poste</div>${Object.entries(cat).filter(e=>e[1]>0).sort((a,b)=>b[1]-a[1]).map(e=>`<div class="row2"><span>${e[0]}</span><span><b>${eur(e[1])}</b> <span class="m">· ${eur(e[1]/n)}/pers.</span></span></div>`).join('')}</div>
+    <div class="card"><div class="gs" style="margin:0 0 4px">Cumul jour par jour</div><div class="row2"><span>✈️ Billets d’avion</span><b>${eur(run)}</b></div>${dts.map(d=>{const v=all.filter(a=>a.date===d).reduce((s,a)=>s+cost(a),0);run+=v;return`<div class="row2"><span style="text-transform:capitalize">${fmtS(d)} <span class="m">+${eur(v)}</span></span><b>${eur(run)}</b></div>`}).join('')}</div>
+    <div class="card"><div class="gs" style="margin:0 0 4px">Réglages</div><label>Nombre de personnes</label><input type="number" inputmode="numeric" min="1" value="${n}" onchange="setP(this.value)">
+    <div class="g2"><div><label>Billets d’avion (€)</label><input type="text" inputmode="decimal" value="${v2(c.base)}" onchange="setF('base',this.value)"></div><div><label>Supplément (€)</label><input type="text" inputmode="decimal" value="${v2(c.extra)}" onchange="setF('extra',this.value)"></div></div>
+    <label>Le montant des billets est pour</label><select onchange="setF('pp',this.value)"><option value="0">Tout le groupe</option><option value="1" ${c.pp?'selected':''}>1 personne</option></select></div>`}
   else if(tab==='guide'){
     h+=`<div class="gs" style="margin-top:4px">À voir autour de Chișinău</div>`+G.map((g,i)=>`<div class="card act"><div class="ico">${g.c}</div><div class="x"><div class="big">${g.t}</div><div class="m">${g.d}</div>
       <button class="btn pri" style="margin-top:8px" onclick="openG(${i})">+ Ajouter à l’agenda</button></div></div>`).join('')
     +`<div class="gs">Infos pratiques</div>`+INFO.map(i=>`<div class="card act"><div class="ico">${i[0]}</div><div class="x"><div class="big">${i[1]}</div><div class="m">${i[2]}</div></div></div>`).join('')
     +`<p class="m" style="text-align:center">Résumés d’après <a href="${WV}" target="_blank" rel="noopener">Wikivoyage</a> (CC BY-SA). Infos à vérifier avant le départ.</p>`}
   else{
-    const all=acts(),dt=all.filter(a=>a.date<=day&&(a.end||a.date)>=day),k=a=>day===a.date?(a.time||'99:99'):'';
+    const all=acts(),dt=all.filter(a=>a.date<=day&&(a.end||a.date)>=day),k=a=>day===a.date?(a.time||'99:99'):'',tot=all.reduce((s,a)=>s+cost(a),0)+fcost();
     h+=`<div class="chips">${days.map(d=>{const dd=new Date(d+'T12:00'),has=all.some(a=>a.date<=d&&(a.end||a.date)>=d)||flights().some(f=>f.dep.startsWith(d));return`<button class="chip ${d===day?'on':''} ${has?'dot':''}" onclick="day='${d}';render()">${dd.toLocaleDateString('fr-FR',{weekday:'short'})}<b>${dd.getDate()}</b></button>`}).join('')}</div>
-    <div class="sum"><div class="m">Ce jour<b>${eur(dt.filter(a=>a.date===day).reduce((s,a)=>s+(a.price||0),0))}</b></div><div class="m">Activités<b>${eur(all.reduce((s,a)=>s+(a.price||0),0))}</b></div><div class="m">Billets d’avion<b style="color:var(--b)">${eur((c=>c?c.base+c.extra:0)(items.find(i=>i.id==='p-fp')))}</b></div></div>
+    <div class="sum"><div class="m">Ce jour<b>${eur(dt.filter(a=>a.date===day).reduce((s,a)=>s+cost(a),0))}</b></div><div class="m">Billets d’avion<b style="color:var(--b)">${eur(fcost())}</b></div><div class="m">Total cumulé<b>${eur(tot)}</b></div><div class="m">Par personne<b style="color:var(--b)">${eur(tot/people())}</b></div></div>
     <div class="gs" style="margin-top:0;text-transform:capitalize">${fmt(day)}</div>`;
     flights().filter(f=>f.dep.startsWith(day)).forEach(f=>h+=flCard(f,0));
-    dt.sort((a,b)=>k(a).localeCompare(k(b))).forEach(a=>h+=`<div class="card act" onclick="openF('${a.id}')"><div class="ico">${a.cat||'✨'}</div><div class="x"><div class="row"><span class="big">${esc(a.title)}</span><span class="pr">${a.price?eur(a.price):''}</span></div>
+    dt.sort((a,b)=>k(a).localeCompare(k(b))).forEach(a=>h+=`<div class="card act" onclick="openF('${a.id}')"><div class="ico">${a.cat||'✨'}</div><div class="x"><div class="row"><span class="big">${esc(a.title)}</span><span class="pr">${a.price?eur(cost(a))+(a.pp?' ('+people()+' pers.)':''):''}</span></div>
       <div class="m">${day===a.date?(a.time?(a.end?'Dès '+a.time:a.time):'Heure libre'):day===a.end?'Jusqu’à '+(a.etime||'la fin de journée'):'En cours'}${a.end&&day===a.date?' · jusqu’au '+a.end.slice(8)+'/'+a.end.slice(5,7):''}</div>
       ${a.addr?`<a class="tag" onclick="event.stopPropagation()" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(a.addr)}">📍 ${esc(a.addr)}</a>`:''}
       ${a.url?`<a class="tag" onclick="event.stopPropagation()" target="_blank" rel="noopener" href="${esc(link(a.url))}">🔗 Site web</a>`:''}${a.notes?`<div class="m" style="margin-top:6px">${esc(a.notes)}</div>`:''}</div></div>`);
     if(!dt.length)h+=`<div class="card m" style="text-align:center">Rien de prévu ce jour-là.<br>Appuie sur + ou pioche une idée dans le Guide 🧭</div>`}
   $('#main').innerHTML=h}
-function openF(id,p){const a=id?items.find(i=>i.id===id):(p||{});$('#dh').textContent=id?'Modifier l’activité':'Nouvelle activité';
-  $('#fid').value=id||'';$('#ft').value=a.title||'';$('#fc').value=a.cat||'✨';$('#fd').value=a.date||day;$('#fh').value=a.time||'';$('#fe').value=a.end||'';$('#fz').value=a.etime||'';$('#fp').value=a.price||'';$('#fu').value=a.url||'';$('#fa').value=a.addr||'';$('#fn').value=a.notes||'';
-  $('#fdel').style.display=id?'':'none';dlg.showModal()}
+const TY=[['🛏️','Hôtel'],['🚗','Voiture'],['🚌','Transport'],['🍽️','Resto'],['🏛️','Visite'],['🍷','Cave'],['🌳','Nature'],['🛍️','Shopping'],['✨','Autre']];
+$('#tiles').innerHTML=TY.map(t=>`<button type="button" class="tile" data-c="${t[0]}" onclick="tc('${t[0]}')"><span>${t[0]}</span>${t[1]}</button>`).join('');
+const LB={'🛏️':['Arrivée','Heure d’arrivée','Départ','Heure de départ'],'🚗':['Retrait','Heure de retrait','Retour','Heure de retour']},LD=['Date','Heure','Jusqu’au','Heure de fin'];
+function tc(c){$('#fc').value=c;document.querySelectorAll('.tile').forEach(b=>b.classList.toggle('on',b.dataset.c===c));
+  const l=LB[c]||LD;['l1','l2','l3','l4'].forEach((id,i)=>$('#'+id).textContent=l[i]);$('#multi').style.display=(LB[c]||$('#fe').value)?'':'none'}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),2200)}
+function openF(id,p){const a=id?items.find(i=>i.id===id):(p||{});$('#dh').textContent=id?'Modifier':'Nouvelle activité';
+  $('#fid').value=id||'';$('#ft').value=a.title||'';$('#fd').value=a.date||day;$('#fh').value=a.time||'';$('#fe').value=a.end||'';$('#fz').value=a.etime||'';
+  $('#fp').value=a.price?String(a.price).replace('.',','):'';$('#fm').value=a.pp?'1':'0';$('#fu').value=a.url||'';$('#fa').value=a.addr||'';$('#fn').value=a.notes||'';
+  tc(a.cat||'✨');$('#fdel').style.display=id?'':'none';$('#sh').classList.add('open');document.body.style.overflow='hidden'}
+function closeF(){$('#sh').classList.remove('open');document.body.style.overflow=''}
 function openG(i){const g=G[i];openF('',{title:g.t,cat:g.c,addr:g.a})}
-function saveF(e){e.preventDefault();const o={id:$('#fid').value||'a'+Date.now().toString(36),type:'act',title:$('#ft').value.trim(),cat:$('#fc').value,date:$('#fd').value,time:$('#fh').value,end:$('#fe').value,etime:$('#fz').value,price:parseFloat($('#fp').value)||0,url:$('#fu').value.trim(),addr:$('#fa').value.trim(),notes:$('#fn').value.trim(),updatedAt:Date.now()};
-  if(days.includes(o.date))day=o.date;tab='agenda';put(o);dlg.close()}
-function delF(){if(!confirm('Supprimer cette activité ?'))return;const a=items.find(i=>i.id===$('#fid').value);put({...a,deleted:true,updatedAt:Date.now()});dlg.close()}
-addEventListener('online',sync);addEventListener('offline',()=>setS('offline'));setInterval(cd,6e4);
+function saveF(e){e.preventDefault();const d=$('#fd').value,en=$('#fe').value,t=$('#ft').value.trim();
+  if(!t||!d)return toast('Titre et date requis');if(en&&en<d)return toast('La fin est avant le début');
+  const o={id:$('#fid').value||'a'+Date.now().toString(36),type:'act',title:t,cat:$('#fc').value,date:d,time:$('#fh').value,end:en,etime:$('#fz').value,price:num($('#fp').value),pp:$('#fm').value==='1',url:$('#fu').value.trim(),addr:$('#fa').value.trim(),notes:$('#fn').value.trim(),updatedAt:Date.now()};
+  if(days.includes(d))day=d;tab='agenda';closeF();put(o);toast('✓ Enregistré')}
+function delF(){if(!confirm('Supprimer cet élément ?'))return;const a=items.find(i=>i.id===$('#fid').value);closeF();put({...a,deleted:true,updatedAt:Date.now()});toast('Supprimé')}
+addEventListener('online',sync);document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync()});addEventListener('offline',()=>setS('offline'));setInterval(cd,6e4);
 if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js');
 render();sync();
 </script></body></html>
