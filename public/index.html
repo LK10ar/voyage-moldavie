@@ -53,12 +53,15 @@ input,textarea,select{width:100%;padding:11px;border:1px solid var(--l);border-r
 .sum{flex-wrap:wrap}.sum div{flex:1 1 calc(50% - 5px)}
 .row2{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-top:1px solid var(--l)}
 .big2{font-size:1.8rem;font-weight:800;color:var(--r);line-height:1.15}
+.sum div[onclick]{cursor:pointer;position:relative}.sum div[onclick]:after{content:"›";position:absolute;right:12px;top:6px;font-size:1.3rem;opacity:.45}
+.row2[onclick]{cursor:pointer}
 </style></head><body>
 <div class="hero"><div class="top"><h1>🇲🇩 Moldavie<small>Décembre 2026</small></h1><span id="st"></span></div><div id="cd"></div><div id="cdl"></div></div>
 <main id="main"></main>
 <button id="fab" onclick="openF()" aria-label="Ajouter">+</button>
 <nav><button id="t-agenda" onclick="setTab('agenda')"><span>📅</span>Agenda</button><button id="t-vols" onclick="setTab('vols')"><span>✈️</span>Vols</button><button id="t-budget" onclick="setTab('budget')"><span>💰</span>Budget</button><button id="t-guide" onclick="setTab('guide')"><span>🧭</span>Guide</button></nav>
 <div id="toast"></div>
+<div id="dt" class="sh" onclick="if(event.target===this)closeD()"><div class="pn"><div id="dtb"></div><div class="ft"><button type="button" class="btn" onclick="closeD()">Fermer</button><button type="button" class="btn pri" id="dtadd" style="flex:1">+ Ajouter</button></div></div></div>
 <div id="sh" class="sh" onclick="if(event.target===this)closeF()"><form class="pn" onsubmit="saveF(event)">
 <div class="row"><h2 id="dh">Nouvelle activité</h2><button type="button" class="btn" onclick="closeF()">✕</button></div>
 <input type="hidden" id="fid"><input type="hidden" id="fc">
@@ -101,7 +104,7 @@ const INFO=[['💶','Monnaie','Leu moldave (MDL). Cartes acceptées en ville, ga
 ['🛂','Entrée','Vérifie les conditions d’entrée et les conseils aux voyageurs sur le site du ministère des Affaires étrangères. Évite la Transnistrie sans te renseigner.']];
 let items=JSON.parse(localStorage.getItem(K)||'null')||SEED.slice(),tab='agenda';
 const PLAN=[
-{id:'p-h1',cat:'🛏️',title:'Aparthotel Bulevardul Moscova',date:'2026-12-08',time:'15:00',end:'2026-12-10',etime:'11:00',addr:'Bulevardul Moscova 15/1, 2068 Chișinău, Moldavie',notes:'2 adultes · 2 nuits · arrivée 15:00–23:00 · départ avant 11:00'},
+{id:'p-h1',cat:'🛏️',title:'Aparthotel Bulevardul Moscova',date:'2026-12-08',time:'15:00',end:'2026-12-10',etime:'11:00',addr:'Bulevardul Moscova 15/1, 2068 Chișinău, Moldavie',price:51,notes:'2 adultes · 2 nuits · arrivée 15:00–23:00 · départ avant 11:00 · réservation confirmée · annulation gratuite'},
 {id:'p-h2',cat:'🛏️',title:'Aparthotel Bulevardul Moscova (Studio Familial)',date:'2026-12-17',time:'15:00',end:'2026-12-19',etime:'11:00',addr:'Bulevardul Moscova 15/1, 2068 Chișinău, Moldavie',price:82,notes:'2 adultes · 2 nuits · ≈ 1 647 MDL payés sur place · annulation gratuite jusqu’au 15/12 à 23:59 · tél. +373 691 31 024'},
 {id:'p-d9',cat:'🌳',title:'Chișinău : parcs et musées',date:'2026-12-09',addr:'Chișinău, Moldavie',notes:'Ajoute chaque parc et musée avec son adresse et son prix.'},
 {id:'p-c1',cat:'🚗',title:'Location de voiture',date:'2026-12-10',time:'10:00',end:'2026-12-17',etime:'18:00',notes:'Retrait le 10/12 à 10:00 · retour le 17/12 à 18:00'},
@@ -114,6 +117,7 @@ const PLAN=[
 PLAN.forEach(p=>{if(!items.some(i=>i.id===p.id))items.push(p)});
 if(!items.some(i=>i.id==='p-fp'))items.push({id:'p-fp',type:'cost',base:440.98,extra:45,updatedAt:1});
 if(!items.some(i=>i.id==='p-cfg'))items.push({id:'p-cfg',type:'cfg',people:2,updatedAt:1});
+{const h=items.find(i=>i.id==='p-h1');if(h&&!h.price&&h.updatedAt<=1){h.price=51;h.notes='2 adultes · 2 nuits · arrivée 15:00–23:00 · départ avant 11:00 · réservation confirmée · annulation gratuite';h.updatedAt=2}}
 const days=[];for(let d=new Date('2026-12-07T12:00');d<=new Date('2026-12-20T12:00');d.setDate(d.getDate()+1))days.push(d.toISOString().slice(0,10));
 const today=new Date().toLocaleDateString('sv');let day=days.includes(today)?today:days[0];
 const live=()=>items.filter(i=>!i.deleted),utc=f=>{const[d,t]=f.dep.split(' '),[y,m,da]=d.split('-').map(Number),[h,mi]=t.split(':').map(Number);return Date.UTC(y,m-1,da,h,mi)-f.tz*36e5};
@@ -122,8 +126,9 @@ const fmt=d=>new Date(d+'T12:00').toLocaleDateString('fr-FR',{weekday:'long',day
 const eur=n=>(n||0).toLocaleString('fr-FR',{style:'currency',currency:'EUR'});
 const num=v=>parseFloat(String(v).replace(',','.'))||0,cfg=()=>items.find(i=>i.id==='p-cfg')||{id:'p-cfg',type:'cfg',people:2},people=()=>Math.max(1,cfg().people||2);
 const fcost=()=>{const c=items.find(i=>i.id==='p-fp')||{base:0,extra:0};return(c.base+c.extra)*(c.pp?people():1)},cost=a=>(a.price||0)*(a.pp?people():1);
-const sm=(all,cs)=>all.filter(a=>cs.includes(a.cat)).reduce((s,a)=>s+cost(a),0),S=all=>({h:sm(all,['🛏️']),c:sm(all,['🚗']),f:sm(all,['⛽']),a:all.filter(a=>!['🛏️','🚗','⛽'].includes(a.cat)).reduce((s,a)=>s+cost(a),0)});
-const CN={'🛏️':'🛏️ Hébergement','🚗':'🚗 Location voiture','⛽':'⛽ Essence','🚌':'🚌 Transport','🍽️':'🍽️ Restaurants','🏛️':'🏛️ Visites','🍷':'🍷 Caves','🌳':'🌳 Nature','🛍️':'🛍️ Shopping','✨':'✨ Autre'};
+const sm=(all,cs)=>all.filter(a=>cs.includes(a.cat)).reduce((s,a)=>s+cost(a),0),GR=['🛏️','🚗','⛽','🍽️','🎁','🛍️'],S=all=>({h:sm(all,['🛏️']),c:sm(all,['🚗']),f:sm(all,['⛽']),r:sm(all,['🍽️']),s:sm(all,['🎁','🛍️']),a:all.filter(a=>!GR.includes(a.cat)).reduce((s,a)=>s+cost(a),0)}),
+BX={act:['🎟️ Activités',a=>!GR.includes(a.cat),'✨'],h:['🛏️ Hébergement',a=>a.cat==='🛏️','🛏️'],c:['🚗 Location voiture',a=>a.cat==='🚗','🚗'],f:['⛽ Essence',a=>a.cat==='⛽','⛽'],r:['🍽️ Restaurants & nourriture',a=>a.cat==='🍽️','🍽️'],s:['🎁 Souvenirs & shopping',a=>a.cat==='🎁'||a.cat==='🛍️','🎁']};
+const CN={'🛏️':'🛏️ Hébergement','🚗':'🚗 Location voiture','⛽':'⛽ Essence','🚌':'🚌 Transport','🍽️':'🍽️ Restaurants','🏛️':'🏛️ Visites','🍷':'🍷 Caves','🌳':'🌳 Nature','🎁':'🎁 Souvenirs','🛍️':'🛍️ Shopping','✨':'✨ Autre'};
 const fmtS=d=>new Date(d+'T12:00').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
 const link=u=>/^https?:\/\//i.test(u)?u:'https://'+u;
 function save(){try{localStorage.setItem(K,JSON.stringify(items))}catch(e){toast('⚠️ Stockage bloqué')}render();sync()}
@@ -176,7 +181,7 @@ function render(){
   else{
     const all=acts(),dt=all.filter(a=>a.date<=day&&(a.end||a.date)>=day),k=a=>day===a.date?(a.time||'99:99'):'',tot=all.reduce((s,a)=>s+cost(a),0)+fcost(),Z=S(all),hint=v=>v?'':'<span style="display:block;font-size:.7rem;font-weight:400;opacity:.75">Touche pour saisir</span>';
     h+=`<div class="chips">${days.map(d=>{const dd=new Date(d+'T12:00'),has=all.some(a=>a.date<=d&&(a.end||a.date)>=d)||flights().some(f=>f.dep.startsWith(d));return`<button class="chip ${d===day?'on':''} ${has?'dot':''}" onclick="day='${d}';render()">${dd.toLocaleDateString('fr-FR',{weekday:'short'})}<b>${dd.getDate()}</b></button>`}).join('')}</div>
-    <div class="sum"><div class="m">Ce jour<b>${eur(dt.filter(a=>a.date===day).reduce((s,a)=>s+cost(a),0))}</b></div><div class="m">🎟️ Activités<b>${eur(Z.a)}</b></div><div class="m">🛏️ Hébergement<b>${eur(Z.h)}</b></div><div class="m" onclick="boxEdit('c')">🚗 Location voiture<b>${eur(Z.c)}</b>${hint(Z.c)}</div><div class="m" onclick="boxEdit('f')">⛽ Essence<b>${eur(Z.f)}</b>${hint(Z.f)}</div><div class="m">✈️ Billets d’avion<b style="color:var(--b)">${eur(fcost())}</b></div><div class="m" style="background:color-mix(in srgb,var(--r) 14%,var(--c))">Total cumulé<b>${eur(tot)}</b></div><div class="m" style="background:color-mix(in srgb,var(--b) 16%,var(--c))">Par personne<b style="color:var(--b)">${eur(tot/people())}</b></div></div>
+    <div class="sum"><div class="m" onclick="showBox('day')">Ce jour<b>${eur(dt.filter(a=>a.date===day).reduce((s,a)=>s+cost(a),0))}</b></div><div class="m" onclick="showBox('act')">🎟️ Activités<b>${eur(Z.a)}</b></div><div class="m" onclick="showBox('h')">🛏️ Hébergement<b>${eur(Z.h)}</b></div><div class="m" onclick="showBox('c')">🚗 Location voiture<b>${eur(Z.c)}</b></div><div class="m" onclick="showBox('f')">⛽ Essence<b>${eur(Z.f)}</b></div><div class="m" onclick="showBox('r')">🍽️ Restaurants<b>${eur(Z.r)}</b></div><div class="m" onclick="showBox('s')">🎁 Souvenirs<b>${eur(Z.s)}</b></div><div class="m" onclick="showBox('fl')">✈️ Billets d’avion<b style="color:var(--b)">${eur(fcost())}</b></div><div class="m" style="background:color-mix(in srgb,var(--r) 14%,var(--c))" onclick="showBox('tot')">Total cumulé<b>${eur(tot)}</b></div><div class="m" style="background:color-mix(in srgb,var(--b) 16%,var(--c))" onclick="showBox('pp')">Par personne<b style="color:var(--b)">${eur(tot/people())}</b></div></div>
     <div class="gs" style="margin-top:0;text-transform:capitalize">${fmt(day)}</div>`;
     flights().filter(f=>f.dep.startsWith(day)).forEach(f=>h+=flCard(f,0));
     dt.sort((a,b)=>k(a).localeCompare(k(b))).forEach(a=>h+=`<div class="card act" onclick="openF('${a.id}')"><div class="ico">${a.cat||'✨'}</div><div class="x"><div class="row"><span class="big">${esc(a.title)}</span><span class="pr">${a.price?eur(cost(a))+(a.pp?' ('+people()+' pers.)':''):''}</span></div>
@@ -185,7 +190,7 @@ function render(){
       ${a.url?`<a class="tag" onclick="event.stopPropagation()" target="_blank" rel="noopener" href="${esc(link(a.url))}">🔗 Site web</a>`:''}${a.notes?`<div class="m" style="margin-top:6px">${esc(a.notes)}</div>`:''}</div></div>`);
     if(!dt.length)h+=`<div class="card m" style="text-align:center">Rien de prévu ce jour-là.<br>Appuie sur + ou pioche une idée dans le Guide 🧭</div>`}
   $('#main').innerHTML=h}
-const TY=[['🛏️','Hôtel'],['🚗','Location'],['⛽','Essence'],['🚌','Transport'],['🍽️','Resto'],['🏛️','Visite'],['🍷','Cave'],['🌳','Nature'],['🛍️','Shopping'],['✨','Autre']];
+const TY=[['🛏️','Hôtel'],['🚗','Location'],['⛽','Essence'],['🚌','Transport'],['🍽️','Resto'],['🏛️','Visite'],['🍷','Cave'],['🌳','Nature'],['🎁','Souvenir'],['🛍️','Shopping'],['✨','Autre']];
 $('#tiles').innerHTML=TY.map(t=>`<button type="button" class="tile" data-c="${t[0]}" onclick="tc('${t[0]}')"><span>${t[0]}</span>${t[1]}</button>`).join('');
 const LB={'🛏️':['Arrivée','Heure d’arrivée','Départ','Heure de départ'],'🚗':['Retrait','Heure de retrait','Retour','Heure de retour']},LD=['Date','Heure','Jusqu’au','Heure de fin'];
 function tc(c){$('#fc').value=c;document.querySelectorAll('.tile').forEach(b=>b.classList.toggle('on',b.dataset.c===c));
@@ -196,6 +201,21 @@ function openF(id,p){const a=id?items.find(i=>i.id===id):(p||{});$('#dh').textCo
   $('#fp').value=a.price?String(a.price).replace('.',','):'';$('#fm').value=a.pp?'1':'0';$('#fu').value=a.url||'';$('#fa').value=a.addr||'';$('#fn').value=a.notes||'';
   tc(a.cat||'✨');$('#fdel').style.display=id?'':'none';$('#sh').classList.add('open');document.body.style.overflow='hidden'}
 function closeF(){$('#sh').classList.remove('open');document.body.style.overflow=''}
+function closeD(){$('#dt').classList.remove('open');document.body.style.overflow=''}
+function showBox(k){
+  const all=acts(),fl=items.find(i=>i.id==='p-fp'),n=people();let L=[],t='',add=null;
+  const ent=a=>({id:a.id,d:a.date,t:(a.cat||'✨')+' '+a.title,v:cost(a),n:(a.pp?eur(a.price)+' × '+n+' pers.':'')+(a.end&&a.end!==a.date?(a.pp?' · ':'')+'jusqu’au '+a.end.slice(8)+'/'+a.end.slice(5,7):'')});
+  const fe=()=>({id:'fl',d:'2026-12-07',t:'✈️ Billets d’avion',v:fcost(),n:fl?eur(fl.base)+' + '+eur(fl.extra)+' supplément'+(fl.pp?' × '+n+' pers.':''):''});
+  if(k==='day'){t='Ce jour · '+fmtS(day);L=all.filter(a=>a.date===day).map(ent);add={date:day}}
+  else if(k==='fl'){t='✈️ Billets d’avion';L=[fe()]}
+  else if(k==='tot'||k==='pp'){t=k==='tot'?'Total cumulé':'Par personne';L=[fe(),...all.map(ent)]}
+  else{const b=BX[k];t=b[0];L=all.filter(b[1]).map(ent);add={cat:b[2]}}
+  L.sort((x,y)=>x.d.localeCompare(y.d));const sum=L.reduce((s,x)=>s+x.v,0),pp=k==='pp';let run=0;
+  $('#dtb').innerHTML=`<div class="row"><h2 style="text-transform:capitalize">${t}</h2><span class="m">${L.length} ligne${L.length>1?'s':''}</span></div>
+  <div class="row" style="margin:12px 0"><div><div class="m">Total</div><div class="big2">${eur(sum)}</div></div><div style="text-align:right"><div class="m">Par personne (${n})</div><div class="big2" style="color:var(--b)">${eur(sum/n)}</div></div></div>
+  <div class="gs" style="margin:6px 0 0">Historique</div>`+(L.length?L.map(x=>{run+=x.v;return`<div class="row2" onclick="${x.id==='fl'?"closeD();setTab('budget')":"closeD();openF('"+x.id+"')"}"><div><div>${esc(x.t)}</div><div class="m">${fmtS(x.d)}${x.n?' · '+esc(x.n):''}</div></div><div style="text-align:right"><b>${eur(pp?x.v/n:x.v)}</b><div class="m">cumul ${eur(pp?run/n:run)}</div></div></div>`}).join(''):'<div class="row2 m" style="justify-content:center">Rien pour l’instant.</div>');
+  $('#dtadd').style.display=add?'':'none';$('#dtadd').onclick=()=>{closeD();openF('',add)};
+  $('#dt').classList.add('open');document.body.style.overflow='hidden'}
 function boxEdit(k){const l=acts();
   if(k==='c'){const x=l.find(a=>a.id==='p-c1')||l.find(a=>a.cat==='🚗'&&a.end);return x?openF(x.id):openF('',{cat:'🚗',title:'Location de voiture',date:'2026-12-10',end:'2026-12-17'})}
   const x=l.find(a=>a.cat==='⛽');x?openF(x.id):openF('',{cat:'⛽',title:'Essence',date:'2026-12-10'})}
