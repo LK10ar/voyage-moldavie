@@ -122,7 +122,8 @@ const fmt=d=>new Date(d+'T12:00').toLocaleDateString('fr-FR',{weekday:'long',day
 const eur=n=>(n||0).toLocaleString('fr-FR',{style:'currency',currency:'EUR'});
 const num=v=>parseFloat(String(v).replace(',','.'))||0,cfg=()=>items.find(i=>i.id==='p-cfg')||{id:'p-cfg',type:'cfg',people:2},people=()=>Math.max(1,cfg().people||2);
 const fcost=()=>{const c=items.find(i=>i.id==='p-fp')||{base:0,extra:0};return(c.base+c.extra)*(c.pp?people():1)},cost=a=>(a.price||0)*(a.pp?people():1);
-const CN={'🛏️':'🛏️ Hébergement','🚗':'🚗 Voiture','🚌':'🚌 Transport','🍽️':'🍽️ Restaurants','🏛️':'🏛️ Visites','🍷':'🍷 Caves','🌳':'🌳 Nature','🛍️':'🛍️ Shopping','✨':'✨ Autre'};
+const sm=(all,cs)=>all.filter(a=>cs.includes(a.cat)).reduce((s,a)=>s+cost(a),0),S=all=>({h:sm(all,['🛏️']),c:sm(all,['🚗']),f:sm(all,['⛽']),a:all.filter(a=>!['🛏️','🚗','⛽'].includes(a.cat)).reduce((s,a)=>s+cost(a),0)});
+const CN={'🛏️':'🛏️ Hébergement','🚗':'🚗 Location voiture','⛽':'⛽ Essence','🚌':'🚌 Transport','🍽️':'🍽️ Restaurants','🏛️':'🏛️ Visites','🍷':'🍷 Caves','🌳':'🌳 Nature','🛍️':'🛍️ Shopping','✨':'✨ Autre'};
 const fmtS=d=>new Date(d+'T12:00').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
 const link=u=>/^https?:\/\//i.test(u)?u:'https://'+u;
 function save(){try{localStorage.setItem(K,JSON.stringify(items))}catch(e){toast('⚠️ Stockage bloqué')}render();sync()}
@@ -173,9 +174,9 @@ function render(){
     +`<div class="gs">Infos pratiques</div>`+INFO.map(i=>`<div class="card act"><div class="ico">${i[0]}</div><div class="x"><div class="big">${i[1]}</div><div class="m">${i[2]}</div></div></div>`).join('')
     +`<p class="m" style="text-align:center">Résumés d’après <a href="${WV}" target="_blank" rel="noopener">Wikivoyage</a> (CC BY-SA). Infos à vérifier avant le départ.</p>`}
   else{
-    const all=acts(),dt=all.filter(a=>a.date<=day&&(a.end||a.date)>=day),k=a=>day===a.date?(a.time||'99:99'):'',tot=all.reduce((s,a)=>s+cost(a),0)+fcost();
+    const all=acts(),dt=all.filter(a=>a.date<=day&&(a.end||a.date)>=day),k=a=>day===a.date?(a.time||'99:99'):'',tot=all.reduce((s,a)=>s+cost(a),0)+fcost(),Z=S(all),hint=v=>v?'':'<span style="display:block;font-size:.7rem;font-weight:400;opacity:.75">Touche pour saisir</span>';
     h+=`<div class="chips">${days.map(d=>{const dd=new Date(d+'T12:00'),has=all.some(a=>a.date<=d&&(a.end||a.date)>=d)||flights().some(f=>f.dep.startsWith(d));return`<button class="chip ${d===day?'on':''} ${has?'dot':''}" onclick="day='${d}';render()">${dd.toLocaleDateString('fr-FR',{weekday:'short'})}<b>${dd.getDate()}</b></button>`}).join('')}</div>
-    <div class="sum"><div class="m">Ce jour<b>${eur(dt.filter(a=>a.date===day).reduce((s,a)=>s+cost(a),0))}</b></div><div class="m">Billets d’avion<b style="color:var(--b)">${eur(fcost())}</b></div><div class="m">Total cumulé<b>${eur(tot)}</b></div><div class="m">Par personne<b style="color:var(--b)">${eur(tot/people())}</b></div></div>
+    <div class="sum"><div class="m">Ce jour<b>${eur(dt.filter(a=>a.date===day).reduce((s,a)=>s+cost(a),0))}</b></div><div class="m">🎟️ Activités<b>${eur(Z.a)}</b></div><div class="m">🛏️ Hébergement<b>${eur(Z.h)}</b></div><div class="m" onclick="boxEdit('c')">🚗 Location voiture<b>${eur(Z.c)}</b>${hint(Z.c)}</div><div class="m" onclick="boxEdit('f')">⛽ Essence<b>${eur(Z.f)}</b>${hint(Z.f)}</div><div class="m">✈️ Billets d’avion<b style="color:var(--b)">${eur(fcost())}</b></div><div class="m" style="background:color-mix(in srgb,var(--r) 14%,var(--c))">Total cumulé<b>${eur(tot)}</b></div><div class="m" style="background:color-mix(in srgb,var(--b) 16%,var(--c))">Par personne<b style="color:var(--b)">${eur(tot/people())}</b></div></div>
     <div class="gs" style="margin-top:0;text-transform:capitalize">${fmt(day)}</div>`;
     flights().filter(f=>f.dep.startsWith(day)).forEach(f=>h+=flCard(f,0));
     dt.sort((a,b)=>k(a).localeCompare(k(b))).forEach(a=>h+=`<div class="card act" onclick="openF('${a.id}')"><div class="ico">${a.cat||'✨'}</div><div class="x"><div class="row"><span class="big">${esc(a.title)}</span><span class="pr">${a.price?eur(cost(a))+(a.pp?' ('+people()+' pers.)':''):''}</span></div>
@@ -184,7 +185,7 @@ function render(){
       ${a.url?`<a class="tag" onclick="event.stopPropagation()" target="_blank" rel="noopener" href="${esc(link(a.url))}">🔗 Site web</a>`:''}${a.notes?`<div class="m" style="margin-top:6px">${esc(a.notes)}</div>`:''}</div></div>`);
     if(!dt.length)h+=`<div class="card m" style="text-align:center">Rien de prévu ce jour-là.<br>Appuie sur + ou pioche une idée dans le Guide 🧭</div>`}
   $('#main').innerHTML=h}
-const TY=[['🛏️','Hôtel'],['🚗','Voiture'],['🚌','Transport'],['🍽️','Resto'],['🏛️','Visite'],['🍷','Cave'],['🌳','Nature'],['🛍️','Shopping'],['✨','Autre']];
+const TY=[['🛏️','Hôtel'],['🚗','Location'],['⛽','Essence'],['🚌','Transport'],['🍽️','Resto'],['🏛️','Visite'],['🍷','Cave'],['🌳','Nature'],['🛍️','Shopping'],['✨','Autre']];
 $('#tiles').innerHTML=TY.map(t=>`<button type="button" class="tile" data-c="${t[0]}" onclick="tc('${t[0]}')"><span>${t[0]}</span>${t[1]}</button>`).join('');
 const LB={'🛏️':['Arrivée','Heure d’arrivée','Départ','Heure de départ'],'🚗':['Retrait','Heure de retrait','Retour','Heure de retour']},LD=['Date','Heure','Jusqu’au','Heure de fin'];
 function tc(c){$('#fc').value=c;document.querySelectorAll('.tile').forEach(b=>b.classList.toggle('on',b.dataset.c===c));
@@ -195,6 +196,9 @@ function openF(id,p){const a=id?items.find(i=>i.id===id):(p||{});$('#dh').textCo
   $('#fp').value=a.price?String(a.price).replace('.',','):'';$('#fm').value=a.pp?'1':'0';$('#fu').value=a.url||'';$('#fa').value=a.addr||'';$('#fn').value=a.notes||'';
   tc(a.cat||'✨');$('#fdel').style.display=id?'':'none';$('#sh').classList.add('open');document.body.style.overflow='hidden'}
 function closeF(){$('#sh').classList.remove('open');document.body.style.overflow=''}
+function boxEdit(k){const l=acts();
+  if(k==='c'){const x=l.find(a=>a.id==='p-c1')||l.find(a=>a.cat==='🚗'&&a.end);return x?openF(x.id):openF('',{cat:'🚗',title:'Location de voiture',date:'2026-12-10',end:'2026-12-17'})}
+  const x=l.find(a=>a.cat==='⛽');x?openF(x.id):openF('',{cat:'⛽',title:'Essence',date:'2026-12-10'})}
 function openG(i){const g=G[i];openF('',{title:g.t,cat:g.c,addr:g.a})}
 function saveF(e){e.preventDefault();const d=$('#fd').value,en=$('#fe').value,t=$('#ft').value.trim();
   if(!t||!d)return toast('Titre et date requis');if(en&&en<d)return toast('La fin est avant le début');
